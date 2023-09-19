@@ -4,15 +4,162 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width">
   <title>Landing Simulation</title>
+  <style>
+    .container {
+      padding: 20px;
+    }
+
+    .button-group {
+      display: flex;
+      gap: 12px;
+      padding: 20px 0px;
+    }
+
+    .table-container {
+      width: calc(100vw - 40px);
+      overflow-x: auto;
+    }
+
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      padding: 0;
+      margin: 0;
+      width: 100vw;
+    }
+
+    table {
+      max-width: 100vw; /* Adjust the width as needed */
+      width: calc(100vw - 40px);
+      border-collapse: collapse;
+      margin-top: 20px; /* Add some margin to separate from the header */
+    }
+
+    table, th, td {
+      border: 1px solid black;
+      padding: 10px;
+      text-align: left;
+      white-space: nowrap;
+    }
+  </style>
 </head>
 <body>
-  <h1>Landing Simulation</h1>
+  <div class="container">
+    <h1>Landing Simulation</h1>
+    <div class="table-container">
+      <table>
+        <tr>
+          <th>Key</th>
+          <th>Value</th>
+          <th>Datasource</th>
+          <th>Updated at</th>
+        </tr>
+        <tr>
+          <td>Campaign ID</td>
+          <td id="campaignId"></td>
+          <td id="campaignId__datasource"></td>
+          <td id="campaignId__updatedAt"></td>
+        </tr>
+        <tr>
+          <td>Fingerprint</td>
+          <td id="fingerprint"></td>
+          <td id="fingerprint__datasource"></td>
+          <td id="fingerprint__updatedAt"></td>
+        </tr>
+      </table>
+    </div>
+    <div class="button-group">
+      <button onclick="clearLocalStorage()">Clear LocalStorage</button>
+      <button onclick="clearCookies()">Clear Cookies</button>
+    </div>
+  </div>
+
   <script>
+
+  </script>
+
+  <script>
+    function getCurrentDateTime() {
+      const now = new Date();
+
+      const year = now.getFullYear();
+      const month = String(now.getMonth() + 1).padStart(2, '0'); // Month is zero-indexed
+      const day = String(now.getDate()).padStart(2, '0');
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+
+      return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+    }
+
     const urlString = window.location.href;
     const url = new URL(urlString);
     const params = new URLSearchParams(url.search);
     const campaignId = params.get('campaignId');
-    console.log({campaignId});
+
+    if (campaignId) {
+      // Display the campaignId in the table
+      const updatedAt = getCurrentDateTime();
+      document.getElementById('campaignId').textContent = campaignId;
+      document.getElementById('campaignId__datasource').textContent = 'URL Param';
+      document.getElementById('campaignId__updatedAt').textContent = updatedAt;
+      // Store campaignId in localStorage
+      localStorage.setItem('campaignId', campaignId);
+      localStorage.setItem('campaignIdUpdatedAt', updatedAt);
+    } else {
+      // Get campaignId from localStorage
+      const campaignId = localStorage.getItem('campaignId');
+      if (campaignId) {
+        const updatedAt = localStorage.getItem('campaignIdUpdatedAt');
+        // Display the campaignId in the table
+        document.getElementById('campaignId').textContent = campaignId;
+        document.getElementById('campaignId__datasource').textContent = 'localStorage';
+        document.getElementById('campaignId__updatedAt').textContent = updatedAt;
+      }
+    }
+
+    // Get fingerprint from localStorage
+    const fingerprint = localStorage.getItem('fingerprint');
+
+    if (fingerprint) {
+      const updatedAt = localStorage.getItem('fingerprintUpdatedAt');
+      // Display the fingerprint in the table
+      document.getElementById('fingerprint').textContent = fingerprint;
+      document.getElementById('fingerprint__datasource').textContent = 'localStorage';
+      document.getElementById('fingerprint__updatedAt').textContent = updatedAt;
+    } else {
+      // Initialize the agent at application startup.
+      const fpPromise = import('https://openfpcdn.io/fingerprintjs/v3')
+        .then(FingerprintJS => FingerprintJS.load())
+
+      // Get the visitor identifier when you need it.
+      fpPromise
+        .then(fp => fp.get())
+        .then(result => {
+          // This is the visitor identifier:
+          const visitorId = result.visitorId
+          const updatedAt = getCurrentDateTime();
+          document.getElementById('fingerprint').textContent = visitorId || 'None';
+          document.getElementById('fingerprint__datasource').textContent = 'New';
+          document.getElementById('fingerprint__updatedAt').textContent = updatedAt;
+          localStorage.setItem('fingerprint', visitorId);
+          localStorage.setItem('fingerprintUpdatedAt', updatedAt);
+        })
+    }
+  </script>
+  <script>
+    function clearLocalStorage() {
+      localStorage.clear();
+      alert('LocalStorage has been cleared.');
+    }
+
+    function clearCookies() {
+      document.cookie.split(';').forEach((cookie) => {
+        const cookieParts = cookie.split('=');
+        const cookieName = cookieParts[0].trim();
+        document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      });
+      alert('Cookies have been cleared.');
+    }
   </script>
 </body>
 </html>
