@@ -20,6 +20,13 @@
       overflow-x: auto;
     }
 
+    .hint {
+      margin-top: 20px;
+      background-color: #EEE;
+      padding: 20px;
+      border-radius: 4px;
+    }
+
     body {
       font-family: Arial, Helvetica, sans-serif;
       padding: 0;
@@ -66,6 +73,17 @@
           <td id="fingerprint__updatedAt"></td>
         </tr>
       </table>
+    </div>
+    <div class="hint">
+      <h3>How to use?</h3>
+      <div>
+        <b>有帶 campaign id 的 url 範例：</b>
+        <a href="https://timingjl.github.io/landing-simulation.github.io/?campaignId=12345">https://timingjl.github.io/landing-simulation.github.io/?campaignId=12345</a>
+      </div>
+      <div style="margin-top: 20px;">
+        <b>沒帶 campaign id 的 url 範例：</b>
+        <a href="https://timingjl.github.io/landing-simulation.github.io/">https://timingjl.github.io/landing-simulation.github.io/</a>
+      </div>
     </div>
     <div class="button-group">
       <button onclick="clearLocalStorage()">Clear LocalStorage</button>
